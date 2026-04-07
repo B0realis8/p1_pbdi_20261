@@ -38,15 +38,46 @@ Embarked VARCHAR
 DO $$
 DECLARE
     cur REFCURSOR;
-    var_num_passageiros INT;
+    var_nome_passageiro INT;
     passageiros INT := 0;
 BEGIN
     OPEN cur FOR SELECT Name FROM titanic WHERE Survived = true AND Pclass = 1;
         WHILE FOUND LOOP
             passageiros := n_passageiros + 1;
-            FETCH cur INTO var_num_passageiros;
+            FETCH cur INTO var_nome_passageiro;
             EXIT WHEN NOT FOUND;
         END LOOP;
+        RAISE NOTICE 'Passageiros sobreviventes que viajavam na primeira classe: %',passageiros;
+    CLOSE cur;
+END;
+$$
+
+
+-- Enunciado 3 -  Sobrevivência em função do gênero 
+-- Escreva um cursor com query dinâmica que mostra o número de passageiros 
+-- sobreviventes dentre as mulheres (Sex = 'female'). Escreva um condicional para que, se 
+-- não existir nenhuma, o valor -1 seja exibido. 
+-- Mensagem de commit: feat(p1): encontra sobreviventes do sexo feminino 
+
+DO $$
+DECLARE
+    cur REFCURSOR;
+    nome_tabela VARCHAR := 'titanic';
+    var_id_passageiro INT;
+    passageiros INT := 0;
+    sexo VARCHAR := 'female'; 
+BEGIN
+    OPEN cur FOR EXECUTE format('SELECT PassengerId FROM %s WHERE Sex = $1',nome_tabela) USING sexo;
+        WHILE FOUND LOOP
+            passageiros := n_passageiros + 1;
+            FETCH cur INTO var_id_passageiro;
+            EXIT WHEN NOT FOUND;
+        END LOOP;
+        IF passageiros = 0 THEN
+            RAISE NOTICE '-1';
+        ELSE
+            RAISE NOTICE 'Número de passageiros: %',passageiros;
+        END IF;
     CLOSE cur;
 END;
 $$
