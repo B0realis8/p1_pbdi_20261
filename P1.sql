@@ -28,3 +28,25 @@ Cabin VARCHAR,
 Embarked VARCHAR
 
 );
+
+
+-- Enunciado 2 - Sobrevivência em função da classe social 
+-- Escreva um cursor não vinculado que mostra o número de passageiros sobreviventes que 
+-- viajavam na primeira classe (Pclass = 1). 
+-- Mensagem de commit: feat(p1): encontra sobreviventes da primeira classe 
+
+DO $$
+DECLARE
+    cur REFCURSOR;
+    var_num_passageiros INT;
+    passageiros INT := 0;
+BEGIN
+    OPEN cur FOR SELECT Name FROM titanic WHERE Survived = true AND Pclass = 1;
+        WHILE FOUND LOOP
+            passageiros := n_passageiros + 1;
+            FETCH cur INTO var_num_passageiros;
+            EXIT WHEN NOT FOUND;
+        END LOOP;
+    CLOSE cur;
+END;
+$$
