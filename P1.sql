@@ -13,7 +13,6 @@ DROP TABLE IF EXISTS titanic;
 CREATE TABLE titanic(
 
 PassengerId SERIAL PRIMARY KEY,
-
 Survived BOOLEAN,
 Pclass INT,
 Name VARCHAR,
@@ -111,3 +110,38 @@ BEGIN
 END;
 $$
 
+-- Enunciado 5  Limpeza de valores NULL 
+-- Escreva um cursor não vinculado para a remoção de todas as tuplas que possuam o valor 
+-- NULL em pelo menos um de seus campos. Antes de fazer a sua remoção, exiba a tupla. A 
+-- seguir, mostre as tuplas remanescentes, de baixo para cima. 
+
+-- Mensagem de commit: feat(p1): remove com dados faltantes
+
+DO $$
+DECLARE
+    cur_deletar REFCURSOR;
+    tupla RECORD;
+BEGIN
+    OPEN cur_deletar SCROLL FOR SELECT * FROM titanic;
+        LOOP
+            FETCH cur_deletar INTO tupla;
+            EXIT WHEN NOT FOUND;
+            IF (tupla.PassengerId IS NULL)
+            OR (tupla.Survived IS NULL) 
+            OR (tupla.Sex IS NULL)
+            OR (tupla.Pclass IS NULL)
+            OR (tupla.Fare IS NULL)
+            OR (tupla.Embarked IS NULL)
+            THEN
+                RAISE NOTICE 'Tupla: %',tupla;
+                DELETE FROM titanic WHERE CURRENT OF cur_deletar;
+            END IF;
+        END LOOP;
+        LOOP
+            FETCH BACKWARD FROM cur_deletar INTO tupla;
+            EXIT WHEN NOT FOUND;
+            RAISE NOTICE '%', tupla;
+        END LOOP;
+    CLOSE cur_deletar;
+END;
+$$
